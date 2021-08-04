@@ -51,11 +51,10 @@ except Exception as e:
     exit()
 
 
-def notify_event(sub_id, subreddit):
+def notify_event(sub_id, subreddit, desc):
     try:
-        prowl.notify(event='Hit', description='Found one of your search terms',
-                     priority=0, url='https://www.reddit.com/r/{}/comments/{}'.format(subreddit, sub_id),
-                     appName='subredmonitor')
+        prowl.notify(event='Hit', description=desc, priority=0, appName='subredmonitor',
+                     url='https://www.reddit.com/r/{}/comments/{}'.format(subreddit, sub_id))
         print("Notification successfully sent to Prowl!")
     except Exception as e:
         print("Error sending notification to Prowl: {}".format(e))
@@ -88,4 +87,4 @@ for submission in reddit.subreddit(CONFIG['subreddit']).stream.submissions():
                     print(
                         "Skipping notification because we've seen this {} times.".format(hits))
                 else:
-                    notify_event(submission.id, CONFIG['subreddit'])
+                    notify_event(submission.id, CONFIG['subreddit'], submission.title)

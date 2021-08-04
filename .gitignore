@@ -130,3 +130,4 @@ dmypy.json
 
 # Application config
 config.yaml
+redis-vol
