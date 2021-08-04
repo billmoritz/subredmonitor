@@ -1,0 +1,7 @@
+---
+subreddit: All
+title_match:
+  - Title string
+text_match:
+  - Body search
+  - Body search

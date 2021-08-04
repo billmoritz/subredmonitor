@@ -1,0 +1,22 @@
+version: '3.4'
+
+services:
+  subredmonitor:
+    image: subredmonitor
+    restart: unless-stopped
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - ${PWD}/config.yaml:/app/config.yaml
+    environment:
+      - PROWL_API_KEY
+      - REDDIT_CLIENT_ID
+      - REDDIT_CLIENT_SECRET
+      - REDDIT_PASSWORD
+      - REDDIT_USERNAME
+  redis:
+    image: "redis:alpine"
+    restart: unless-stopped
+    volumes:
+        - ./redis-vol:/data 
