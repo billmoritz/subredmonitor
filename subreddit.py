@@ -51,10 +51,9 @@ except Exception as e:
     exit()
 
 
-def notify_event(sub_id, subreddit, desc):
+def notify_event(url, subreddit, desc):
     try:
-        prowl.notify(event='Hit', description=desc, priority=0, appName='subredmonitor',
-                     url='https://www.reddit.com/r/{}/comments/{}'.format(subreddit, sub_id))
+        prowl.notify(event='Hit', description=desc, priority=0, appName='subredmonitor', url=url)
         print("Notification successfully sent to Prowl!")
     except Exception as e:
         print("Error sending notification to Prowl: {}".format(e))
@@ -68,7 +67,17 @@ reddit = praw.Reddit(
     username=os.environ.get('REDDIT_USERNAME'),
 )
 
-for submission in reddit.subreddit(CONFIG['subreddit']).stream.submissions():
+if type(CONFIG['subreddit']) == list :
+    SUBREDDITS = '+'.join(CONFIG['subreddit'])
+elif type(CONFIG['subreddit']) == str :
+    SUBREDDITS = CONFIG['subreddit']
+else:
+    print("Config option 'subreddit' is invalid type: " + str(type(CONFIG['subreddit'])))
+    exit()
+
+print('Monitoring {}'.format(SUBREDDITS))
+
+for submission in reddit.subreddit(SUBREDDITS).stream.submissions():
     text_matched, title_matched = False, False
     for title_match in CONFIG['title_matches']:
         if submission.title.lower().find(title_match.lower()) != -1:
@@ -87,4 +96,4 @@ for submission in reddit.subreddit(CONFIG['subreddit']).stream.submissions():
                     print(
                         "Skipping notification because we've seen this {} times.".format(hits))
                 else:
-                    notify_event(submission.id, CONFIG['subreddit'], submission.title)
+                    notify_event(submission.url, SUBREDDITS, submission.title)
