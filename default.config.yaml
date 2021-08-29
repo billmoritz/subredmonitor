@@ -1,4 +1,5 @@
 ---
+log_level: INFO
 subreddit: All
 title_match:
   - Title string
