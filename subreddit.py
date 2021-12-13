@@ -37,7 +37,7 @@ redis_cache = redis.Redis(host='redis', port=6379)
 
 try:
     redis_cache.ping()
-    logging.debug("Redis connection successfully verified!")
+    logging.info("Redis connection successfully verified!")
 except Exception as e:
     logging.critical("Error connecting to Redis: {}".format(e))
     exit()
@@ -59,7 +59,7 @@ prowl = pyprowl.Prowl(os.environ.get('PROWL_API_KEY'))
 
 try:
     prowl.verify_key()
-    logging.debug("Prowl API key successfully verified!")
+    logging.info("Prowl API key successfully verified!")
 except Exception as e:
     logging.critical("Error verifying Prowl API key: {}".format(e))
     exit()
@@ -69,7 +69,7 @@ def notify_event(url, subreddit, desc):
     try:
         prowl.notify(event='Hit', description=desc, priority=0,
                      appName='subredmonitor', url=url)
-        logging.debug("Notification successfully sent to Prowl!")
+        logging.info("Notification successfully sent to Prowl!")
     except Exception as e:
         logging.error("Error sending notification to Prowl: {}".format(e))
 
@@ -114,8 +114,8 @@ for submission in reddit.subreddit(SUBREDDITS).stream.submissions():
                 else:
                     notify_event(submission.url, SUBREDDITS, submission.title)
             else:
-                logging.debug('Title matched but text did not /u/{}: ({}) {}'.format(submission.author.name,
+                logging.info('Title matched but text did not /u/{}: ({}) {}'.format(submission.author.name,
                                                                                      submission.id, submission.title))
     else:
-        logging.debug('Title did not match /u/{}: ({}) {}'.format(submission.author.name,
+        logging.info('Title did not match /u/{}: ({}) {}'.format(submission.author.name,
                                                                       submission.id, submission.title))
