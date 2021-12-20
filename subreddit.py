@@ -95,27 +95,38 @@ logging.info('Start monitoring: {}'.format(SUBREDDITS))
 
 for submission in reddit.subreddit(SUBREDDITS).stream.submissions():
     text_matched, title_matched = False, False
+    # search for titles
     for title_match in CONFIG['title_match']:
         if submission.title.lower().find(title_match.lower()) != -1:
-            title_matched = True
-    if title_matched:
-        if reddit.submission(submission.id).is_self:
-            text = reddit.submission(submission.id).selftext
-            for text_match in CONFIG['text_match']:
-                if text.lower().find(text_match.lower()) != -1:
-                    text_matched = True
-            if text_matched:
-                hits = get_submission_hits(submission.id)
-                logging.info('Matched submission from /u/{}: ({}) {}'.format(submission.author.name,
-                                                                           submission.id, submission.title))
-                if hits > 1:
-                    logging.info(
-                        "Skipping notification because we've seen this {} times.".format(hits))
-                else:
-                    notify_event(submission.url, SUBREDDITS, submission.title)
+            # once title found search for secondary if definded
+            if 'title_match_secondary' in CONFIG:
+                for title_match_secondary in CONFIG['title_match_secondary']:
+                    if submission.title.lower().find(title_match_secondary.lower()) != -1:
+                        title_matched = True
             else:
-                logging.info('Title matched but text did not /u/{}: ({}) {}'.format(submission.author.name,
-                                                                                     submission.id, submission.title))
+                title_matched = True
+    if title_matched:
+        # search for submission text if defined
+        if 'text_match' in CONFIG:
+            if reddit.submission(submission.id).is_self:
+                text = reddit.submission(submission.id).selftext
+                for text_match in CONFIG['text_match']:
+                    if text.lower().find(text_match.lower()) != -1:
+                        text_matched = True
+        else:
+            text_matched = True
+        if text_matched:
+            hits = get_submission_hits(submission.id)
+            logging.info('Matched submission from /u/{}: ({}) {}'.format(submission.author.name,
+                                                                    submission.id, submission.title))
+            if hits > 1:
+                logging.info(
+                    "Skipping notification because we've seen this {} times.".format(hits))
+            else:
+                notify_event('https://www.reddit.com{}'.format(submission.permalink), SUBREDDITS, submission.title)
+        else:
+            logging.info('Title matched but text did not /u/{}: ({}) {}'.format(submission.author.name,
+                                                                                submission.id, submission.title))
     else:
         logging.info('Title did not match /u/{}: ({}) {}'.format(submission.author.name,
                                                                       submission.id, submission.title))
