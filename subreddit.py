@@ -11,7 +11,6 @@ import redis
 import yaml
 
 # TODO: Hash body to catch edits
-# TODO: Get running on server
 
 LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
 DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
@@ -73,13 +72,14 @@ def notify_event(url, subreddit, desc):
     except Exception as e:
         logging.error("Error sending notification to Prowl: {}".format(e))
 
+reddit_username = os.environ.get('REDDIT_USERNAME')
 
 reddit = praw.Reddit(
     client_id=os.environ.get('REDDIT_CLIENT_ID'),
     client_secret=os.environ.get('REDDIT_CLIENT_SECRET'),
     password=os.environ.get('REDDIT_PASSWORD'),
-    user_agent="subredmonitor v0.1",
-    username=os.environ.get('REDDIT_USERNAME'),
+    user_agent="Python:subredmonitor:v0.1 (by /u/{})".format(reddit_username),
+    username=reddit_username,
 )
 
 if type(CONFIG['subreddit']) == list:
