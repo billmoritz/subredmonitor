@@ -15,6 +15,8 @@ services:
       - REDDIT_CLIENT_SECRET
       - REDDIT_PASSWORD
       - REDDIT_USERNAME
+      - PUSHOVER_APP_TOKEN
+      - PUSHOVER_USER_KEY
     depends_on:
       - redis
   redis:
