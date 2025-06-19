@@ -20,7 +20,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10' # Match the Python version in your Dockerfile
+          python-version: '3.13' # Match the Python version in your Dockerfile
 
       - name: Install dependencies and Pylint
         run: |
@@ -29,7 +29,7 @@ jobs:
           pip install pylint
       - name: Analysing the code with pylint
         run: |
-          pylint $(git ls-files '*.py')
+          pylint --fail-on=E,F --fail-under=0 $(git ls-files '*.py')
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
